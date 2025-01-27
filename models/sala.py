@@ -14,7 +14,13 @@ class SalaFilter(BaseModel, MongoBase):
     nombre: Optional[str] = None
 
     @field_validator("email")
-    def make_regex(cls, v):
+    def make_regex_email(cls, v):
+        if v is not None:
+            return {"$regex": v, "$options": "i"}  # Convertir en regex si no es None
+        return v
+    
+    @field_validator("nombre")
+    def make_regex_nombre(cls, v):
         if v is not None:
             return {"$regex": v, "$options": "i"}  # Convertir en regex si no es None
         return v

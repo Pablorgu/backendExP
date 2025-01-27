@@ -8,6 +8,8 @@ from middlewares.auth import AuthMiddleware
 from services.archivos import archivos_bp
 from services.salas import salas_bp
 from services.usuarios import usuarios_router
+from services.peliculas import peliculas_bp
+from services.proyecciones import proyecciones_bp
 
 
 
@@ -19,6 +21,8 @@ app = FastAPI()
 app.include_router(salas_bp)
 app.include_router(archivos_bp)
 app.include_router(usuarios_router)
+app.include_router(peliculas_bp)
+app.include_router(proyecciones_bp)
 
 
 app.add_middleware(AuthMiddleware)

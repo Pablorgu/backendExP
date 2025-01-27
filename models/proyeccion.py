@@ -1,4 +1,3 @@
-import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 from pydantic_mongo import PydanticObjectId
@@ -10,30 +9,25 @@ class ProyeccionId(BaseModel, MongoBase):
 class ProyeccionFilter(BaseModel, MongoBase):
     nombrePelicula: Optional[str] = None
     nombreSala: Optional[str] = None
-    fecha: Optional[datetime] = None
+    fecha: Optional[str] = None
 
-    @field_validator("nombrePelicula")
+    @field_validator("nombrePelicula", "nombreSala", mode="before")
     def make_regex(cls, v):
         if v is not None:
             return {"$regex": v, "$options": "i"}  # Convertir en regex si no es None
         return v
     
-    @field_validator("nombreSala")
-    def make_regex(cls, v):
-        if v is not None:
-            return {"$regex": v, "$options": "i"}  # Convertir en regex si no es None
-        return v
     
 class Proyeccion(BaseModel, MongoBase):
     id: PydanticObjectId = Field(alias="_id")
     nombrePelicula: str
     nombreSala: str
-    fecha: datetime
+    fecha: str
 
 class ProyeccionNew(BaseModel, MongoBase):
     nombrePelicula: str
     nombreSala: str
-    fecha: datetime
+    fecha: str
 
     @field_validator("nombrePelicula", mode="before")
     def validate_nombrePelicula(cls, v):
@@ -47,16 +41,10 @@ class ProyeccionNew(BaseModel, MongoBase):
             raise ValueError("El nombre de la sala no puede estar vacío.")
         return v
     
-    @field_validator("fecha", mode="before")
-    def validate_fecha(cls, v):
-        if v is not None and v < datetime.datetime.now():
-            raise ValueError("La fecha no puede ser anterior a la actual.")
-        return v
-    
 class ProyeccionUpdate(BaseModel, MongoBase):
     nombrePelicula: Optional[str] = None
     nombreSala: Optional[str] = None
-    fecha: Optional[datetime] = None
+    fecha: Optional[str] = None
 
 class ProyeccionList(BaseModel):
     proyecciones: List[Proyeccion]

@@ -17,7 +17,7 @@ salas_bp = APIRouter(prefix="/salas", tags=["salas"])
 client = pymongo.MongoClient(MONGO_URL)
 db = client[MONGO_DB]
 salas = db.salas
-
+proyecciones = db.proyecciones
 cache = TTLCache(maxsize=100, ttl=3600)
 
 @salas_bp.get("/todos")
@@ -142,4 +142,19 @@ def delete_sala(id):
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Error al eliminar la Sala: {str(e)}"
+        )
+
+@salas_bp.get("/peliculas/{nombrePelicula}")
+def get_Salas_por_pelicula(nombrePelicula):
+    try:
+        proyecciones_data = proyecciones.find({"nombrePelicula": nombrePelicula})
+        if not proyecciones_data:
+            raise HTTPException(status_code=404, detail="No se encontraron salas para la película")
+
+        salas_nombre = [proyeccion["nombreSala"] for proyeccion in proyecciones_data]
+        salas = salas.find({"nombre": {"$in": salas_nombre}})
+        return SalaList(salas=[sala for sala in salas]).model_dump(exclude_none=True)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Error al buscar las salas: {str(e)}"
         )
