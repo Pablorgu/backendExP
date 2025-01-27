@@ -37,7 +37,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                         "access_token": access_token,
                         "googleId": googleId,
                         }
-                
+                response.setHeader("Access-Control-Allow-Origin", "*");
                 request.state.user = userData
 
         except HTTPException as e:
