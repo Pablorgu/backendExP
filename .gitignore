@@ -1,0 +1,10 @@
+# Virtual Environment folders
+.venv
+venv
+env
+get-pip.py
+get-pip.py.1
+
+#.env
+__pycache__
+.vercel

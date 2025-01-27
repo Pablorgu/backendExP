@@ -1,0 +1,35 @@
+name: esquema-parcial-backend
+
+x-backend: &backend
+  env_file:
+    - .env
+  environment:
+    - TZ=Europe/Madrid
+
+services:
+  backend:
+    <<: *backend
+    profiles:
+      - produccion
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-container
+    ports:
+      - "8000:8000"
+    command: python /app/services/app.py
+
+  backend-dev:
+    <<: *backend
+    profiles:
+      - desarrollo
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-dev-container
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services:/app/services
+      - ./models:/app/models
+    command: python /app/services/app.py
