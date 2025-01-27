@@ -4,14 +4,14 @@ from pydantic_mongo import PydanticObjectId
 from models.baseMongo import MongoBase
 
 
-class MarcadorId(BaseModel, MongoBase):
+class SalaId(BaseModel, MongoBase):
     idMapa: PydanticObjectId
 
-class MarcadorFilter(BaseModel, MongoBase):
+class SalaFilter(BaseModel, MongoBase):
     lat: Optional[str] = None
     lon: Optional[str] = None
     email: Optional[str] = None
-    imagen: Optional[str] = None
+    nombre: Optional[str] = None
 
     @field_validator("email")
     def make_regex(cls, v):
@@ -20,19 +20,19 @@ class MarcadorFilter(BaseModel, MongoBase):
         return v
 
 
-class Marcador(BaseModel, MongoBase):
+class Sala(BaseModel, MongoBase):
     id: PydanticObjectId = Field(alias="_id")
     lat: str
     lon: str
     email: str
-    imagen: str
+    nombre: str
 
 
-class MarcadorNew(BaseModel, MongoBase):
+class SalaNew(BaseModel, MongoBase):
     lat: str
     lon: str
     email: str
-    imagen: str
+    nombre: str
 
     @field_validator("lat", "lon", mode="before")
     def validate_coordinates(cls, v):
@@ -53,18 +53,12 @@ class MarcadorNew(BaseModel, MongoBase):
             raise ValueError("Email debe ser válido.")
         return v
 
-    @field_validator("imagen", mode="before")
-    def validate_imagen(cls, v):
-        if v is not None and not v.startswith("http"):
-            raise ValueError("La imagen debe ser una URL válida.")
-        return v
-
-class MarcadorUpdate(BaseModel, MongoBase):
+class SalaUpdate(BaseModel, MongoBase):
     lat: Optional[str] = None
     lon: Optional[str] = None
     email: Optional[str] = None
-    imagen: Optional[str] = None
+    nombre: Optional[str] = None
 
 
-class MarcadorList(BaseModel):
-    marcadores: List[Marcador]
+class SalaList(BaseModel):
+    salas: List[Sala]

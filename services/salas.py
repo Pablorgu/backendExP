@@ -6,27 +6,27 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException, Depends
 from cachetools import TTLCache
 
-from models.marcador import MarcadorFilter, MarcadorId, Marcador, MarcadorList, MarcadorNew, MarcadorUpdate
+from models.sala import SalaFilter, SalaId, Sala, SalaList, SalaNew, SalaUpdate
 
 load_dotenv()
 MONGO_URL = os.getenv("MONGO_URL")
 MONGO_DB = os.getenv("MONGO_DB") or ""
 
-marcadores_bp = APIRouter(prefix="/marcadores", tags=["marcadores"])
+salas_bp = APIRouter(prefix="/salas", tags=["salas"])
 
 client = pymongo.MongoClient(MONGO_URL)
 db = client[MONGO_DB]
-marcadores = db.marcadores
+salas = db.salas
 
 cache = TTLCache(maxsize=100, ttl=3600)
 
-@marcadores_bp.get("/todos")
-def get_marcadores(filtro: MarcadorFilter = Depends()):
+@salas_bp.get("/todos")
+def get_salas(filtro: SalaFilter = Depends()):
     filter = filtro.to_mongo_dict(exclude_none=True)
-    marcadores_data = marcadores.find(filter)
-    return MarcadorList(marcadores=[marcador for marcador in marcadores_data]).model_dump(exclude_none=True)
+    salas_data = salas.find(filter)
+    return SalaList(salas=[sala for sala in salas_data]).model_dump(exclude_none=True)
 
-@marcadores_bp.get("/")
+@salas_bp.get("/")
 def get_mapas_por_query_o_coords(q: str = None, lat: str = None, lon: str = None):
     if q:
         if q in cache:
@@ -86,60 +86,60 @@ def get_mapas_por_query_o_coords(q: str = None, lat: str = None, lon: str = None
         )
 
 
-@marcadores_bp.get("/{id}", response_model=Marcador)
-def get_marcador_por_id(id):
+@salas_bp.get("/{id}", response_model=Sala)
+def get_sala_por_id(id):
     try:
-        marcador = marcadores.find_one({"_id": ObjectId(id)})
-        if not marcador:
-            raise HTTPException(status_code=404, detail="Marcador no encontrado")
+        sala = salas.find_one({"_id": ObjectId(id)})
+        if not sala:
+            raise HTTPException(status_code=404, detail="Sala no encontrada")
 
-        return marcador
+        return sala
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Error al buscar el marcador: {str(e)}"
+            status_code=400, detail=f"Error al buscar la sala: {str(e)}"
         )
 
-@marcadores_bp.post("/")
-def create_marcador(marcador: MarcadorNew):
+@salas_bp.post("/")
+def create_sala(sala: SalaNew):
     try:
-        marcador_data = marcador.to_mongo_dict(exclude_none=True)
-        marcador_id = marcadores.insert_one(marcador_data).inserted_id
-        return MarcadorId(idMapa=str(marcador_id))
+        sala_data = sala.to_mongo_dict(exclude_none=True)
+        sala_id = salas.insert_one(sala_data).inserted_id
+        return SalaId(idMapa=str(sala_id))
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Error al crerar el marcador: {str(e)}"
+            status_code=400, detail=f"Error al crear la sala: {str(e)}"
         )
 
 
-@marcadores_bp.put("/{id}")
-def update_marcador(id, marcador: MarcadorUpdate):
+@salas_bp.put("/{id}")
+def update_sala(id, sala: SalaUpdate):
     try:
         filter = {"_id": ObjectId(id)}
-        marcador_existente = marcadores.find_one(filter)
-        if not marcador_existente:
-            raise HTTPException(status_code=404, detail="Marcador no encontrado")
+        sala_existente = salas.find_one(filter)
+        if not sala_existente:
+            raise HTTPException(status_code=404, detail="Sala no encontrada")
 
-        res = marcadores.update_one(filter, {"$set": marcador.to_mongo_dict(exclude_none=True)})
+        res = salas.update_one(filter, {"$set": sala.to_mongo_dict(exclude_none=True)})
 
         if res.modified_count == 0:
-            raise HTTPException(status_code=404, detail="No se pudo actualizar el marcador")
+            raise HTTPException(status_code=404, detail="No se pudo actualizar la sala")
 
-        return {"message": "Marcador actualizado correctamente"}
+        return {"message": "Sala actualizada correctamente"}
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Error al actualizar el marcador: {str(e)}"
+            status_code=400, detail=f"Error al actualizar la sala: {str(e)}"
         )
 
 
-@marcadores_bp.delete("/{id}")
-def delete_marcador(id):
+@salas_bp.delete("/{id}")
+def delete_sala(id):
     try:
-        res = marcadores.delete_one({"_id": ObjectId(id)})
+        res = salas.delete_one({"_id": ObjectId(id)})
         if res.deleted_count == 0:
-            raise HTTPException(status_code=404, detail="Marcador no encontrado")
+            raise HTTPException(status_code=404, detail="Sala no encontrada")
 
-        return {"message": f"Marcador con ID {id} eliminado"}
+        return {"message": f"Sala con ID {id} eliminado"}
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Error al eliminar el marcador: {str(e)}"
+            status_code=400, detail=f"Error al eliminar la Sala: {str(e)}"
         )
