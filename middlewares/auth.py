@@ -12,7 +12,7 @@ MONGO_URL = os.getenv("MONGO_URL")
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         try:
-         if request.method in ["POST","PUT","DELETE"]:
+         if request.method in ["PUT","DELETE"]:
                 if "Authorization" not in request.headers:
                     raise HTTPException(status_code=401, detail="No se proporcionó un token de autorización")
 
@@ -37,7 +37,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                         "access_token": access_token,
                         "googleId": googleId,
                         }
-                response.setHeader("Access-Control-Allow-Origin", "*");
+                # response.setHeader("Access-Control-Allow-Origin", "*");
                 request.state.user = userData
 
         except HTTPException as e:
